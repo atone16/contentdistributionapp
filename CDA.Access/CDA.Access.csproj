@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CDA.Core\CDA.Core.csproj" />
+    <ProjectReference Include="..\CDA.Data\CDA.Data.csproj" />
+    <ProjectReference Include="..\CDA.IAccess\CDA.IAccess.csproj" />
+    <ProjectReference Include="..\CDA.RedisCache\CDA.RedisCache.csproj" />
+    <ProjectReference Include="..\CDA.Utilities\CDA.Utilities.csproj" />
+  </ItemGroup>
+
+</Project>
