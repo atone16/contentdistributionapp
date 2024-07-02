@@ -1,11 +1,8 @@
 ﻿using CDA.Data;
 using CDA.GraphQL.Mutations;
-using CDA.Managers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CDA.IManagers;
+using CDA.Mock;
+using System.Security.Claims;
 
 namespace CDA.GraphQL.Types.MutationType
 {
@@ -26,6 +23,9 @@ namespace CDA.GraphQL.Types.MutationType
                     {
                         var input = context.ArgumentValue<UserInput>("userInput");
                         var userManager = context.Service<IUserManager>();
+                        var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+
+                        input.TenantId = claimsPrincipal.GetTenantId();
                         return await userManager.CreateUser(input);
                     }
                 );
@@ -52,6 +52,11 @@ namespace CDA.GraphQL.Types.MutationType
                         {
                             var input = context.ArgumentValue<UserInput>("userInput");
                             var userManager = context.Service<IUserManager>();
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+                            
+                            input.TenantId = claimsPrincipal.GetTenantId();
+                            input.UserId = claimsPrincipal.GetUserId();
+
                             return await userManager.UpdateUser(guidId, input);
                         }
 
@@ -75,7 +80,10 @@ namespace CDA.GraphQL.Types.MutationType
                         if (Guid.TryParse(id, out Guid guidId))
                         {
                             var userManager = context.Service<IUserManager>();
-                            return await userManager.ArchiveUser(guidId);
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+
+                            var tenantId = claimsPrincipal.GetTenantId();
+                            return await userManager.ArchiveUser(guidId, tenantId);
                         }
 
                         throw new Exception("Invalid input parameters");

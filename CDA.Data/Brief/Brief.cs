@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace CDA.Data
 {
-    public class Brief : BaseTenantData
+    public class Brief : BaseData
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public Guid AssetId { get; set; }
+        public string AssetId { get; set; }
         public Status Status { get; set; }
     }
 }

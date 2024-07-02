@@ -1,11 +1,8 @@
 ﻿using CDA.Data;
 using CDA.GraphQL.Mutations;
-using CDA.Managers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CDA.IManagers;
+using System.Security.Claims;
+using CDA.Mock;
 
 namespace CDA.GraphQL.Types.MutationType
 {
@@ -24,8 +21,12 @@ namespace CDA.GraphQL.Types.MutationType
                 .Resolve(
                     async context =>
                     {
-                        var input = context.ArgumentValue<BriefInput>("assetInput");
+                        var input = context.ArgumentValue<BriefInput>("briefInput");
                         var briefManager = context.Service<IBriefManager>();
+                        var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+
+                        input.TenantId = claimsPrincipal.GetTenantId();
+                        input.UserId = claimsPrincipal.GetUserId();
                         return await briefManager.CreateBrief(input);
                     }
                 );
@@ -34,18 +35,23 @@ namespace CDA.GraphQL.Types.MutationType
                 .Description("Archives an asset and its related data.")
                 .Type<BooleanType>()
                 .Argument(
-                    "briefId",
+                    "id",
                     a => a
                         .Type<NonNullType<StringType>>()
                         .Description("The brief to archive."))
                 .Resolve(
                     async context =>
                     {
-                        var briefId = context.ArgumentValue<string>("briefId");
+                        var briefId = context.ArgumentValue<string>("id");
                         if (Guid.TryParse(briefId, out Guid guidId))
                         {
                             var briefManager = context.Service<IBriefManager>();
-                            return await briefManager.ArchiveBrief(guidId);
+
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+                            var tenantId = claimsPrincipal.GetTenantId();
+                            var userId = claimsPrincipal.GetUserId();
+
+                            return await briefManager.ArchiveBrief(guidId, tenantId, userId);
                         }
                         throw new Exception("Invalid input parameters");
                     }
@@ -55,7 +61,7 @@ namespace CDA.GraphQL.Types.MutationType
                 .Description("Updates a brief.")
                 .Type<BriefType>()
                 .Argument(
-                    "briefId",
+                    "id",
                     a => a
                         .Type<NonNullType<StringType>>()
                         .Description("The brief to update."))
@@ -67,13 +73,100 @@ namespace CDA.GraphQL.Types.MutationType
                 .Resolve(
                     async context =>
                     {
-                        var briefId = context.ArgumentValue<string>("briefId");
+                        var briefId = context.ArgumentValue<string>("id");
 
                         if (Guid.TryParse(briefId, out Guid guidId))
                         {
-                            var briefInput = context.ArgumentValue<BriefInput>("briefInput");
+                            var input = context.ArgumentValue<BriefInput>("briefInput");
                             var briefManager = context.Service<IBriefManager>();
-                            return await briefManager.UpdateBrief(guidId, briefInput);
+
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+                            input.TenantId = claimsPrincipal.GetTenantId();
+                            input.UserId = claimsPrincipal.GetUserId();
+
+                            return await briefManager.UpdateBrief(guidId, input);
+                        }
+                        throw new Exception("Invalid input parameters");
+                    }
+                );
+
+            descriptor.Field("addBriefComment")
+                .Description("add a comment for a brief.")
+                .Type<BriefCommentType>()
+                .Argument(
+                    "briefCommentInput",
+                    a => a
+                        .Type<NonNullType<BriefCommentInputType>>()
+                        .Description("The brief comment metadata to update."))
+                .Resolve(
+                    async context =>
+                    {
+                        var input = context.ArgumentValue<BriefCommentInput>("briefCommentInput");
+                        var briefManager = context.Service<IBriefManager>();
+
+                        var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+                        input.TenantId = claimsPrincipal.GetTenantId();
+                        input.UserId = claimsPrincipal.GetUserId();
+
+                        return await briefManager.AddBriefComment(input);
+                    }
+                );
+
+            descriptor.Field("updateBriefComment")
+                .Description("Updates a comment for brief.")
+                .Type<BriefCommentType>()
+                .Argument(
+                    "id",
+                    a => a
+                        .Type<NonNullType<StringType>>()
+                        .Description("The brief to update."))
+                .Argument(
+                    "briefCommentInput",
+                    a => a
+                        .Type<NonNullType<BriefCommentInputType>>()
+                        .Description("The brief metadata to update."))
+                .Resolve(
+                    async context =>
+                    {
+                        var id = context.ArgumentValue<string>("id");
+
+                        if (Guid.TryParse(id, out Guid guidId))
+                        {
+                            var input = context.ArgumentValue<BriefCommentInput>("briefCommentInput");
+                            var briefManager = context.Service<IBriefManager>();
+
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+                            input.TenantId = claimsPrincipal.GetTenantId();
+                            input.UserId = claimsPrincipal.GetUserId();
+
+                            return await briefManager.UpdateBriefComment(guidId, input);
+                        }
+                        throw new Exception("Invalid input parameters");
+                    }
+                );
+
+            descriptor.Field("removeBriefComment")
+                .Description("Removes a comment for a brief.")
+                .Type<BooleanType>()
+                .Argument(
+                    "id",
+                    a => a
+                        .Type<NonNullType<StringType>>()
+                        .Description("The brief to update."))
+                .Resolve(
+                    async context =>
+                    {
+                        var id = context.ArgumentValue<string>("id");
+
+                        if (Guid.TryParse(id, out Guid guidId))
+                        {
+                            var briefManager = context.Service<IBriefManager>();
+
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+                            var tenantId = claimsPrincipal.GetTenantId();
+                            var userId = claimsPrincipal.GetUserId();
+
+                            return await briefManager.RemoveBriefComment(guidId, tenantId, userId);
                         }
                         throw new Exception("Invalid input parameters");
                     }

@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CDA.Data\CDA.Data.csproj" />
     <ProjectReference Include="..\CDA.IAccess\CDA.IAccess.csproj" />
+    <ProjectReference Include="..\CDA.IManagers\CDA.IManagers.csproj" />
   </ItemGroup>
 
 </Project>

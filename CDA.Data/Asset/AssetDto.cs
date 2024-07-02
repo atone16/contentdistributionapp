@@ -9,6 +9,9 @@ namespace CDA.Data
 {
     public class AssetDto : BaseTenantDto
     {
+        public string AssetId { get; set; }
         public Status AssetStatus { get; set; }
+        public Guid AssignedUserId { get; set; }
+        public List<AssetVersion> AssetVersions { get; set; } = new List<AssetVersion>();
     }
 }

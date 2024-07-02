@@ -10,9 +10,13 @@ namespace CDA.Access
             services.AddScoped<IUserAccess, UserAccess>();
             services.AddScoped<IBriefAccess, BriefAccess>();
             services.AddScoped<IContentDistributionAccess, ContentDistributionAccess>();
+            services.AddScoped<IContentDistributionAssetAccess, ContentDistributionAssetAccess>();
             services.AddScoped<IOrderAccess, OrderAccess>();
             services.AddScoped<ITenantAccess, TenantAccess>();
             services.AddScoped<IAssetAccess, AssetAccess>();
+            services.AddScoped<IOrderBriefAccess, OrderBriefAccess>();
+            services.AddScoped<IBriefCommentAccess , BriefCommentAccess>();
+            services.AddScoped<IAssetCommentAccess, AssetCommentAccess>();
 
             return services;
         }

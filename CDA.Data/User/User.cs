@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CDA.Data
 {
-    public class User : BaseTenantData
+    public class User : BaseData
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

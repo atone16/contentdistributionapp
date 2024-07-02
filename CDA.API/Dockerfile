@@ -17,6 +17,8 @@ COPY ["CDA.IAccess/CDA.IAccess.csproj", "CDA.IAccess/"]
 COPY ["CDA.RedisCache/CDA.RedisCache.csproj", "CDA.RedisCache/"]
 COPY ["CDA.Utilities/CDA.Utilities.csproj", "CDA.Utilities/"]
 COPY ["CDA.GraphQL/CDA.GraphQL.csproj", "CDA.GraphQL/"]
+COPY ["CDA.IManagers/CDA.IManagers.csproj", "CDA.IManagers/"]
+COPY ["CDA.Mock/CDA.Mock.csproj", "CDA.Mock/"]
 COPY ["CDA.Managers/CDA.Managers.csproj", "CDA.Managers/"]
 RUN dotnet restore "./CDA.API/CDA.API.csproj"
 COPY . .

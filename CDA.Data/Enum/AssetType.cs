@@ -8,5 +8,8 @@ namespace CDA.Data.Enum
 {
     public enum AssetType
     {
+        ToBeDetermined,
+        Image,
+        Video
     }
 }

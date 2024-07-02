@@ -1,13 +1,9 @@
-﻿using CDA.Data.Enum;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CDA.Data.Base;
+using CDA.Data.Enum;
 
 namespace CDA.Data
 {
-    public class ContentDistributionInput
+    public class ContentDistributionInput : BaseInput
     {
         public DateTime? DistributionDate { get; set; }
         public List<DistributionChannel> DistributionChannels { get; set; }

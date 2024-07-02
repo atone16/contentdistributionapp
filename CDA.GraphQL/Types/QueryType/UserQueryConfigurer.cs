@@ -1,10 +1,7 @@
 ﻿using CDA.GraphQL.Queries;
-using CDA.Managers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CDA.IManagers;
+using CDA.Mock;
+using System.Security.Claims;
 
 namespace CDA.GraphQL.Types.QueryType
 {
@@ -20,14 +17,17 @@ namespace CDA.GraphQL.Types.QueryType
                     a => a
                         .Type<NonNullType<StringType>>()
                         .Description("The id of the user to find."))
-                .Type<AssetType>()
+                .Type<UserType>()
                 .Resolve(async context =>
                 {
                     var id = context.ArgumentValue<string>("id");
                     if (Guid.TryParse(id, out Guid guidId))
                     {
-                        var orderManager = context.Service<IOrderManager>();
-                        return await orderManager.GetById(guidId);
+                        var userManager = context.Service<IUserManager>();
+                        var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+
+                        var tenantId = claimsPrincipal.GetTenantId();
+                        return await userManager.GetById(guidId, tenantId);
                     }
                     throw new Exception("Invalid input parameters");
                 });

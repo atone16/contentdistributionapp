@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CDA.Data
 {
-    public class BaseCommentData : BaseTenantData
+    public class BaseCommentData : BaseData
     {
         public string Comment { get; set; }
     }

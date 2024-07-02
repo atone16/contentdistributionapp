@@ -11,6 +11,7 @@ namespace CDA.Data
         public Guid Id { get; set; }
         public Guid CreatedBy { get; set; } = Guid.Empty;
         public Guid? LastUpdatedBy { get; set; }
+        public Guid TenantId { get; set; }
         public bool IsArchived { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? LastUpdatedDate { get; set; }

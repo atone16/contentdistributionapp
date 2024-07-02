@@ -8,6 +8,6 @@ namespace CDA.Data
 {
     public class AssetComment : BaseCommentData
     {
-        public Guid AssetId { get; set; }
+        public Guid AssetGuid { get; set; }
     }
 }

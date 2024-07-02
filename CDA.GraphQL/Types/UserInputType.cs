@@ -17,6 +17,8 @@ namespace CDA.GraphQL.Types
             descriptor.Field(x => x.FirstName);
             descriptor.Field(x => x.LastName);
             descriptor.Field(x => x.Email);
+            descriptor.Ignore(x => x.UserId);
+            descriptor.Ignore(x => x.TenantId);
         }
     }
 }

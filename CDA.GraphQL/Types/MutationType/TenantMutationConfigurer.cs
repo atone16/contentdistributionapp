@@ -1,11 +1,6 @@
 ﻿using CDA.Data;
 using CDA.GraphQL.Mutations;
-using CDA.Managers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CDA.IManagers;
 
 namespace CDA.GraphQL.Types.MutationType
 {
@@ -54,29 +49,6 @@ namespace CDA.GraphQL.Types.MutationType
                             var tenantManager = context.Service<ITenantManager>();
                             return await tenantManager.UpdateTenant(guidId, input);
                         }
-                        throw new Exception("Invalid input parameters");
-                    }
-                );
-
-            descriptor.Field("archiveTenant")
-                .Description("Archives a tenant. And other connected data will also be updated")
-                .Type<BooleanType>()
-                .Argument(
-                    "id",
-                    a => a
-                        .Type<NonNullType<StringType>>()
-                        .Description("The id of the tenant to archive."))
-                .Resolve(
-                    async context =>
-                    {
-                        var id = context.ArgumentValue<string>("id");
-
-                        if (Guid.TryParse(id, out Guid guidId))
-                        {
-                            var tenantManager = context.Service<ITenantManager>();
-                            return await tenantManager.ArchiveTenant(guidId);
-                        }
-
                         throw new Exception("Invalid input parameters");
                     }
                 );

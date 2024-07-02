@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CDA.Data
 {
-    public class ContentDistribution : BaseTenantData
+    public class ContentDistribution : BaseData
     {
         public DateTime? DistributionDate { get; set; }
         public List<DistributionChannel> DistributionChannels { get; set; }

@@ -1,11 +1,8 @@
 ﻿using CDA.Data;
 using CDA.GraphQL.Mutations;
-using CDA.Managers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CDA.IManagers;
+using CDA.Mock;
+using System.Security.Claims;
 
 namespace CDA.GraphQL.Types.MutationType
 {
@@ -26,6 +23,12 @@ namespace CDA.GraphQL.Types.MutationType
                     {
                         var input = context.ArgumentValue<AssetInput>("assetInput");
                         var assetManager = context.Service<IAssetManager>();
+
+                        var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+
+                        input.TenantId = claimsPrincipal.GetTenantId();
+                        input.UserId = claimsPrincipal.GetUserId();
+
                         return await assetManager.CreateAsset(input);
                     }
                 );
@@ -34,39 +37,23 @@ namespace CDA.GraphQL.Types.MutationType
                 .Description("Archives an asset and its related data.")
                 .Type<BooleanType>()
                 .Argument(
-                    "assetId",
+                    "id",
                     a => a
                         .Type<NonNullType<StringType>>()
                         .Description("The asset to archive."))
                 .Resolve(
                     async context =>
                     {
-                        var assetId = context.ArgumentValue<string>("assetId");
+                        var assetId = context.ArgumentValue<string>("id");
                         if (Guid.TryParse(assetId, out Guid guidId))
                         {
                             var assetManager = context.Service<IAssetManager>();
-                            return await assetManager.ArchiveAsset(guidId);
-                        }
-                        throw new Exception("Invalid input parameters");
-                    }
-                );
 
-            descriptor.Field("unArchiveAsset")
-                .Description("Unarchives an asset and its related data.")
-                .Type<BooleanType>()
-                .Argument(
-                    "assetId",
-                    a => a
-                        .Type<NonNullType<StringType>>()
-                        .Description("The asset to unarchive."))
-                .Resolve(
-                    async context =>
-                    {
-                        var assetId = context.ArgumentValue<string>("assetId");
-                        if (Guid.TryParse(assetId, out Guid guidId))
-                        {
-                            var assetManager = context.Service<IAssetManager>();
-                            return await assetManager.UnArchiveAsset(guidId);
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+                            var tenantId = claimsPrincipal.GetTenantId();
+                            var userId = claimsPrincipal.GetUserId();
+
+                            return await assetManager.ArchiveAsset(guidId, tenantId, userId);
                         }
                         throw new Exception("Invalid input parameters");
                     }
@@ -76,30 +63,170 @@ namespace CDA.GraphQL.Types.MutationType
                 .Description("Updates an asset.")
                 .Type<AssetType>()
                 .Argument(
-                    "assetId",
+                    "id",
                     a => a
                         .Type<NonNullType<StringType>>()
                         .Description("The asset to update."))
                 .Argument(
-                    "assetInput",
+                    "assetUpdateInput",
                     a => a
-                        .Type<NonNullType<AssetInputType>>()
+                        .Type<NonNullType<AssetUpdateInputType>>()
                         .Description("The asset metadata to update."))
                 .Resolve(
                     async context =>
                     {
-                        var assetId = context.ArgumentValue<string>("assetId");
-                        if (Guid.TryParse(assetId, out Guid guidId))
+                        var id = context.ArgumentValue<string>("id");
+                        if (Guid.TryParse(id, out Guid guidId))
                         {
-                            var assetInput = context.ArgumentValue<AssetInput>("assetInput");
+                            var assetUpdateInput = context.ArgumentValue<AssetUpdateInput>("assetUpdateInput");
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+
+                            assetUpdateInput.TenantId = claimsPrincipal.GetTenantId();
+                            assetUpdateInput.UserId = claimsPrincipal.GetUserId();
 
                             var assetManager = context.Service<IAssetManager>();
-                            return await assetManager.UpdateAsset(Guid.Parse(assetId), assetInput);
+                            return await assetManager.UpdateAsset(guidId, assetUpdateInput);
                         }
                         throw new Exception("Invalid input parameters");
                     }
                 );
 
+            descriptor.Field("addAssetComment")
+                .Description("add a comment for an asset.")
+                .Type<AssetCommentType>()
+                .Argument(
+                    "assetCommentInput",
+                    a => a
+                        .Type<NonNullType<AssetCommentInputType>>()
+                        .Description("The asset comment metadata to add."))
+                .Resolve(
+                    async context =>
+                    {
+                        var input = context.ArgumentValue<AssetCommentInput>("assetCommentInput");
+                        var assetManager = context.Service<IAssetManager>();
+
+                        var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+                        input.TenantId = claimsPrincipal.GetTenantId();
+                        input.UserId = claimsPrincipal.GetUserId();
+
+                        return await assetManager.AddAssetComment(input);
+                    }
+                );
+
+            descriptor.Field("updateAssetComment")
+                .Description("Updates a comment for an asset.")
+                .Type<AssetCommentType>()
+                .Argument(
+                    "id",
+                    a => a
+                        .Type<NonNullType<StringType>>()
+                        .Description("The asset comment to update."))
+                .Argument(
+                    "assetCommentInput",
+                    a => a
+                        .Type<NonNullType<AssetCommentInputType>>()
+                        .Description("The assetcoment metadata to update."))
+                .Resolve(
+                    async context =>
+                    {
+                        var id = context.ArgumentValue<string>("id");
+
+                        if (Guid.TryParse(id, out Guid guidId))
+                        {
+                            var input = context.ArgumentValue<AssetCommentInput>("assetCommentInput");
+                            var assetManager = context.Service<IAssetManager>();
+
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+                            input.TenantId = claimsPrincipal.GetTenantId();
+                            input.UserId = claimsPrincipal.GetUserId();
+
+                            return await assetManager.UpdateAssetComment(guidId, input);
+                        }
+                        throw new Exception("Invalid input parameters");
+                    }
+                );
+
+            descriptor.Field("removeAssetComment")
+                .Description("Removes a comment for an asset.")
+                .Type<BooleanType>()
+                .Argument(
+                    "id",
+                    a => a
+                        .Type<NonNullType<StringType>>()
+                        .Description("The asset comment to remove."))
+                .Resolve(
+                    async context =>
+                    {
+                        var id = context.ArgumentValue<string>("id");
+
+                        if (Guid.TryParse(id, out Guid guidId))
+                        {
+                            var assetManager = context.Service<IAssetManager>();
+
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+                            var tenantId = claimsPrincipal.GetTenantId();
+                            var userId = claimsPrincipal.GetUserId();
+
+                            return await assetManager.RemoveAssetComment(guidId, tenantId, userId);
+                        }
+                        throw new Exception("Invalid input parameters");
+                    }
+                );
+
+            descriptor.Field("removeAssetVersion")
+                .Description("Removes an asset version for an asset.")
+                .Type<AssetType>()
+                .Argument(
+                    "assetGuid",
+                    a => a
+                        .Type<NonNullType<StringType>>()
+                        .Description("The assetId to update asset version."))
+
+                .Argument(
+                    "assetVersionNumber",
+                    a => a
+                        .Type<NonNullType<IntType>>()
+                        .Description("The asset comment to remove."))
+                .Resolve(
+                    async context =>
+                    {
+                        var id = context.ArgumentValue<string>("assetGuid");
+                        if (Guid.TryParse(id, out Guid guidId))
+                        {
+                            var assetVersionNumber = context.ArgumentValue<int>("assetVersionNumber");
+                            var assetManager = context.Service<IAssetManager>();
+
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+                            var tenantId = claimsPrincipal.GetTenantId();
+                            var userId = claimsPrincipal.GetUserId();
+
+                            return await assetManager.RemoveAssetVersion(guidId, userId, assetVersionNumber);
+                        }
+                        throw new Exception("Invalid input parameters");
+                    }
+                );
+
+            descriptor.Field("addAssetVersion")
+                .Description("Add an asset version for an asset.")
+                .Type<AssetType>()
+                .Argument(
+                    "assetVersionInput",
+                    a => a
+                        .Type<NonNullType<AssetVersionInputType>>()
+                        .Description("InputMetadata for Asset Version to Add."))
+                .Resolve(
+                    async context =>
+                    {
+                        var assetVersionInput = context.ArgumentValue<AssetVersionInput>("assetVersionInput");
+                        var assetManager = context.Service<IAssetManager>();
+
+                        var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+                        assetVersionInput.TenantId = claimsPrincipal.GetTenantId();
+                        assetVersionInput.UserId = claimsPrincipal.GetUserId();
+
+                        return await assetManager.AddNewAssetVersion(assetVersionInput);
+                    }
+                );
         }
     }
 }

@@ -8,6 +8,10 @@ namespace CDA.Data.Enum
 {
     public enum AssetFormat
     {
-
+        ToBeDetermined,
+        MP4,
+        JPG,
+        GIF,
+        PNG
     }
 }

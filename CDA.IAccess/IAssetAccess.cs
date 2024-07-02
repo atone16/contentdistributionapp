@@ -9,5 +9,6 @@ namespace CDA.IAccess
 {
     public interface IAssetAccess : IBaseAccess<Asset>
     {
+        Task<Asset> GetByAssetId(string assetId);
     }
 }

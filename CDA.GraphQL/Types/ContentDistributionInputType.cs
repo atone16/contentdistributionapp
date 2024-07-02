@@ -17,6 +17,9 @@ namespace CDA.GraphQL.Types
             descriptor.Field(x => x.DistributionChannels);
             descriptor.Field(x => x.DistributionMethods);
             descriptor.Field(x => x.DistributionDate);
+
+            descriptor.Ignore(x => x.UserId);
+            descriptor.Ignore(x => x.TenantId);
         }
     }
 }

@@ -9,6 +9,6 @@ namespace CDA.Data
 {
     public class BriefCommentDto : BaseCommentDto
     {
-        public Guid BriefId { get; set; }
+        public Guid BriefGuid { get; set; }
     }
 }

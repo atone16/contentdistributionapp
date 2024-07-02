@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CDA.Data.Base;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CDA.Data
 {
-    public class OrderInput
+    public class OrderInput : BaseInput
     {
         public string OrderNumber { get; set; }
         public Guid? RequesterUserId { get; set; }

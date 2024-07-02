@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 
 namespace CDA.Data
 {
-    public class AssetVersion : BaseTenantData
+    public class AssetVersion
     {
-        public int Number { get; set; } = 1;
-        public Guid AssetId { get; set; }
+        public int Number { get; set; } = 0;
         public string Name { get; set; }
         public string Description { get; set; }
         public AssetFormat Format { get; set; }

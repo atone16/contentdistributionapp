@@ -14,29 +14,20 @@ namespace CDA.RedisCache
         where TItem : BaseData
     {
         private readonly ICache cache;
-        private readonly IGuidGenerator guidGenerator;
-        private readonly IDateTimeProvider dateTimeProvider;
 
-        public RedisCacheBaseAccess(
-            ICache cache,
-            IGuidGenerator guidGenerator,
-            IDateTimeProvider dateTimeProvider)
+        public RedisCacheBaseAccess(ICache cache)
         {
             this.cache = cache;
-            this.guidGenerator = guidGenerator;
-            this.dateTimeProvider = dateTimeProvider;
         }
 
-        public async Task<TItem> CreateAsync(TItem input)
+        public virtual async Task<TItem> CreateAsync(TItem input)
         {
             if (!await this.cache.ExistsAsync(BuildRedisKey(input)))
             {
                 try
                 {
-                    input.Id = this.guidGenerator.GenerateNewGuid();
-                    input.CreatedDate = this.dateTimeProvider.UtcNow;
-
                     await this.cache.SetAsync(BuildRedisKey(input), input);
+                    await this.cache.SetAddAsync(BuildRelationalKey(input.TenantId), input.Id.ToString().Replace("\"", ""));
                     return input;
                 }
                 catch (Exception ex)
@@ -48,17 +39,22 @@ namespace CDA.RedisCache
             throw new Exception($"Data with Id {input.Id} already exists.");
         }
 
+        private static string BuildRelationalKey(Guid tenantId)
+        {
+            return $"{tenantId}::{typeof(TItem).Name}";
+        }
+
         private string BuildRedisKey(TItem input)
         {
-            return $"{typeof(TItem)}::{input.Id}";
+            return $"{typeof(TItem).Name}::{input.Id}";
         }
 
         private string BuildRedisKeyById(Guid itemId)
         {
-            return $"{typeof(TItem)}::{itemId}"; 
+            return $"{typeof(TItem).Name}::{itemId}"; 
         }
 
-        public async Task<TItem> GetByIdAsync(Guid itemId)
+        public virtual async Task<TItem> GetByIdAsync(Guid itemId)
         {
             if(await this.cache.ExistsAsync(BuildRedisKeyById(itemId)))
             {
@@ -68,21 +64,10 @@ namespace CDA.RedisCache
             return null;
         }
 
-        public async Task<bool> RemoveAsync(Guid itemId)
-        {
-            if (await this.cache.ExistsAsync(BuildRedisKeyById(itemId)))
-            {
-                return await this.cache.DeleteAsync(BuildRedisKeyById(itemId));
-            }
-
-            throw new Exception($"Data does not exist {itemId}");
-        }
-
-        public async Task<TItem> UpdateAsync(TItem item)
+        public virtual async Task<TItem> UpdateAsync(TItem item)
         {
             if (await this.cache.ExistsAsync(BuildRedisKey(item)))
             {
-                item.LastUpdatedDate = this.dateTimeProvider.UtcNow;
                 await this.cache.SetAsync(BuildRedisKey(item), item);
                 return item;
             }
@@ -90,20 +75,20 @@ namespace CDA.RedisCache
             throw new Exception($"Data does not exist");
         }
 
-        public async Task<List<TItem>> GetManyAsync(List<Guid> itemIds)
+        public virtual async Task<bool> RemoveAsync(Guid itemId, Guid tenantId)
         {
-            return new List<TItem>();
+            if (await this.cache.ExistsAsync(BuildRedisKeyById(itemId)))
+            {
+                await this.cache.SetRemoveAsync(BuildRelationalKey(tenantId), $"\"{itemId.ToString()}\"");
+                return await this.cache.DeleteAsync(BuildRedisKeyById(itemId));
+            }
+
+            throw new Exception($"Data does not exist {itemId}");
         }
 
-        public async Task<List<TItem>> CreateManyAsync(List<TItem> inputs)
+        public async Task<List<TItem>> GetByTenantId(Guid tenantId)
         {
-            return new List<TItem>();
-        }
-
-        public async Task<bool> RemoveManyAsync(List<TItem> inputs)
-        {
-            await Task.Delay(10);
-            return false;
+            return await this.cache.GetItemByKey<TItem>(tenantId.ToString());
         }
     }
 }

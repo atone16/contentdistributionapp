@@ -18,6 +18,9 @@ namespace CDA.GraphQL.Types
             descriptor.Field(x => x.OrderNumber);
             descriptor.Field(x => x.CampaignName);
             descriptor.Field(x => x.RequesterUserId);
+
+            descriptor.Ignore(x => x.UserId);
+            descriptor.Ignore(x => x.TenantId);
         }
     }
 }

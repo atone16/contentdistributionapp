@@ -1,11 +1,9 @@
 ﻿using CDA.Data;
 using CDA.GraphQL.Mutations;
-using CDA.Managers;
+using CDA.IManagers;
+using System.Security.Claims;
+using CDA.Mock;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CDA.GraphQL.Types.MutationType
 {
@@ -19,13 +17,18 @@ namespace CDA.GraphQL.Types.MutationType
                 .Argument(
                     "orderInput",
                     a => a
-                        .Type<NonNullType<BriefInputType>>()
+                        .Type<NonNullType<OrderInputType>>()
                         .Description("The order to create."))
                 .Resolve(
                     async context =>
                     {
                         var input = context.ArgumentValue<OrderInput>("orderInput");
                         var orderManager = context.Service<IOrderManager>();
+                        var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+
+                        input.TenantId = claimsPrincipal.GetTenantId();
+                        input.UserId = claimsPrincipal.GetUserId();
+
                         return await orderManager.CreateOrder(input);
                     }
                 );
@@ -34,18 +37,23 @@ namespace CDA.GraphQL.Types.MutationType
                 .Description("Archives an order.")
                 .Type<BooleanType>()
                 .Argument(
-                    "orderId",
+                    "id",
                     a => a
                         .Type<NonNullType<StringType>>()
                         .Description("The Id of the order to archive."))
                 .Resolve(
                     async context =>
                     {
-                        var orderId = context.ArgumentValue<string>("orderId");
+                        var orderId = context.ArgumentValue<string>("id");
                         if (Guid.TryParse(orderId, out Guid guidId))
                         {
                             var orderManager = context.Service<IOrderManager>();
-                            return await orderManager.ArchiveOrder(guidId);
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+
+                            var tenantId = claimsPrincipal.GetTenantId();
+                            var userId = claimsPrincipal.GetUserId();
+
+                            return await orderManager.ArchiveOrder(guidId, tenantId, userId);
                         }
                         throw new Exception("Invalid input parameters");
                     }
@@ -55,7 +63,7 @@ namespace CDA.GraphQL.Types.MutationType
                 .Description("Updates an order.")
                 .Type<OrderType>()
                 .Argument(
-                    "orderId",
+                    "id",
                     a => a
                         .Type<NonNullType<StringType>>()
                         .Description("The id of the order to update."))
@@ -67,13 +75,62 @@ namespace CDA.GraphQL.Types.MutationType
                 .Resolve(
                     async context =>
                     {
-                        var orderId = context.ArgumentValue<string>("orderId");
+                        var id = context.ArgumentValue<string>("id");
 
-                        if (Guid.TryParse(orderId, out Guid guidId))
+                        if (Guid.TryParse(id, out Guid guidId))
                         {
                             var orderInput = context.ArgumentValue<OrderInput>("orderInput");
                             var orderManager = context.Service<IOrderManager>();
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+
+                            orderInput.TenantId = claimsPrincipal.GetTenantId();
+                            orderInput.UserId = claimsPrincipal.GetUserId();
+
                             return await orderManager.UpdateOrder(guidId, orderInput);
+                        }
+                        throw new Exception("Invalid input parameters");
+                    }
+                );
+
+            descriptor.Field("addBriefToOrder")
+                .Description("Adds a brief to an order")
+                .Type<OrderBriefType>()
+                .Argument(
+                    "orderBriefInput",
+                    a => a
+                        .Type<NonNullType<OrderBriefInputType>>()
+                        .Description("The id of the order to update."))
+                .Resolve(
+                    async context =>
+                    {
+                        var orderBriefInput = context.ArgumentValue<OrderBriefInput>("orderBriefInput");
+                        var orderManager = context.Service<IOrderManager>();
+                        var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+
+                        orderBriefInput.TenantId = claimsPrincipal.GetTenantId();
+                        orderBriefInput.UserId = claimsPrincipal.GetUserId();
+
+                        return await orderManager.AddBriefToOrder(orderBriefInput);
+                    }
+                );
+
+            descriptor.Field("removeBriefToOrder")
+                .Description("Removes a brief to an order")
+                .Type<BooleanType>()
+                .Argument(
+                    "id",
+                    a => a
+                        .Type<NonNullType<StringType>>()
+                        .Description("The id of the orderBrief to remove."))
+                .Resolve(
+                    async context =>
+                    {
+                        var id = context.ArgumentValue<string>("id");
+                        if (Guid.TryParse(id, out Guid guidId))
+                        {
+                            var orderManager = context.Service<IOrderManager>();
+                            var claimsPrincipal = context.GetGlobalStateOrDefault<ClaimsPrincipal>(nameof(ClaimsPrincipal));
+                            return await orderManager.RemoveBriefToOrder(guidId, claimsPrincipal.GetTenantId());
                         }
                         throw new Exception("Invalid input parameters");
                     }

@@ -10,7 +10,7 @@ namespace CDA.Data
     {
         public string OrderNumber { get; set; }
         public Guid RequesterUserId { get; set; }
-        public DateTime OrderDate { get; set; }
+        public DateTime? OrderDate { get; set; }
         public string CampaignName { get; set; }
     }
 }

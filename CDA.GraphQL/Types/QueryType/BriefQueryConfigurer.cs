@@ -1,11 +1,6 @@
 ﻿using CDA.Data;
 using CDA.GraphQL.Queries;
-using CDA.Managers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CDA.IManagers;
 
 namespace CDA.GraphQL.Types.QueryType
 {
@@ -21,7 +16,7 @@ namespace CDA.GraphQL.Types.QueryType
                     a => a
                         .Type<NonNullType<StringType>>()
                         .Description("The Id of the brief to find."))
-                .Type<AssetType>()
+                .Type<BriefType>()
                 .Resolve(async context =>
                 {
                     var id = context.ArgumentValue<string>("id");

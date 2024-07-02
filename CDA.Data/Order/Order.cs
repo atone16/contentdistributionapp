@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace CDA.Data
 {
-    public class Order : BaseTenantData
+    public class Order : BaseData
     {
         public string OrderNumber { get; set; }
         public Guid RequesterUserId { get; set; }
-        public DateTime OrderDate { get; set; }
+        public DateTime? OrderDate { get; set; }
         public string CampaignName { get; set; }
     }
 }

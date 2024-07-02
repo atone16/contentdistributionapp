@@ -17,7 +17,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CDA.Data\CDA.Data.csproj" />
-    <ProjectReference Include="..\CDA.Managers\CDA.Managers.csproj" />
+    <ProjectReference Include="..\CDA.IManagers\CDA.IManagers.csproj" />
+    <ProjectReference Include="..\CDA.Mock\CDA.Mock.csproj" />
   </ItemGroup>
 
 </Project>

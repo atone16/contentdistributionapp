@@ -9,5 +9,6 @@ namespace CDA.IAccess
 {
     public interface IBriefAccess : IBaseAccess<Brief>
     {
+        Task<Brief> GetByBriefId(string briefId);
     }
 }

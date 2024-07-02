@@ -12,7 +12,15 @@ namespace CDA.GraphQL
     {
         public static IServiceCollection AddCDAGraphQL(this IServiceCollection services)
         {
-            services.AddGraphQLServer()
+            services
+                .AddCors(options =>
+                {
+                    options.AddDefaultPolicy(builder =>
+                    {
+                        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                    });
+                })
+                .AddGraphQLServer()
                 .AddGraphQLTypes()
                 .AddAuthorization()
                 .ModifyOptions(o => o.RemoveUnreachableTypes = true)

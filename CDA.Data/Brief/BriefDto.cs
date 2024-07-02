@@ -11,7 +11,7 @@ namespace CDA.Data
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public Guid AssetId { get; set; }
+        public string AssetId { get; set; }
         public Status Status { get; set; }
     }
 }

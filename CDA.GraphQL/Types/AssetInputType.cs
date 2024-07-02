@@ -15,6 +15,16 @@ namespace CDA.GraphQL.Types
             descriptor.Description("Input argument for inputting assets");
 
             descriptor.Field(x => x.AssetStatus);
+            descriptor.Field(x => x.AssetId);
+            descriptor.Field(x => x.Description);
+            descriptor.Field(x => x.FilePath);
+            descriptor.Field(x => x.Format);
+            descriptor.Field(x => x.Name);
+            descriptor.Field(x => x.Preview);
+            descriptor.Field(x => x.Type);
+
+            descriptor.Ignore(x => x.TenantId);
+            descriptor.Ignore(x => x.UserId);
         }
     }
 }

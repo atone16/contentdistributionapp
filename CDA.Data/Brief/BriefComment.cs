@@ -8,6 +8,6 @@ namespace CDA.Data
 {
     public class BriefComment : BaseCommentData
     {
-        public Guid BriefId { get; set; }
+        public Guid BriefGuid { get; set; }
     }
 }

@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace CDA.Data
 {
-    public class ContentDistributionAsset : BaseTenantData
+    public class ContentDistributionAsset : BaseData
     {
         public Guid ContentDistributionId { get; set; }
-        public Guid AssetId { get; set; }
-        public string AssetDescription { get; set; }
+        public string AssetId { get; set; }
+        public string Name { get; set; }
+        public string FileUrl { get; set; }
     }
 }
