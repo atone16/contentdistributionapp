@@ -3,7 +3,7 @@ using CDA.Managers;
 using CDA.RedisCache;
 using CDA.Access;
 using CDA.Utilities;
-using HotChocolate.AspNetCore.Voyager;
+using CDA.Mock;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +14,15 @@ builder.Services.AddHealthChecks();
 builder.Services.AddRedisCache(builder.Configuration["RedisConnectionString"]);
 builder.Services.AddUtilities();
 
-var app = builder.Build();
+// Seed Redis
+builder.Services.AddSingleton<SeedRedis>(provider =>
+{
+    var configuration = provider.GetRequiredService<IConfiguration>();
+    var redisConnectionString = builder.Configuration["RedisConnectionString"];
+    return new SeedRedis(redisConnectionString);
+});
 
+var app = builder.Build();
 app.UseRouting();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -27,5 +34,9 @@ app.UseEndpoints(
         endpoint.MapHealthChecks("/health");
     }
 );
+
+// Seed the Default Tenant and User
+var redisService = app.Services.GetRequiredService<SeedRedis>();
+redisService.SeedData();
 
 app.Run();
