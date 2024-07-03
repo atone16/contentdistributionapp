@@ -8,6 +8,8 @@ services:
       dockerfile: CDA.API/Dockerfile
     networks:
       - my-new-network
+    ports:
+      - "8081:8081"
 
   my-redis:
     image: redis

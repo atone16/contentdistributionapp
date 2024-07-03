@@ -25,7 +25,7 @@ namespace CDA.GraphQL
                 .AddAuthorization()
                 .ModifyOptions(o => o.RemoveUnreachableTypes = true)
                 .BindRuntimeType<DateTime, DateTimeType>()// // this will force the datetime/datetime offset used for dates to return dates
-                .AddMaxExecutionDepthRule(12)
+                .AddMaxExecutionDepthRule(15)
                 .SetRequestOptions(o => new HotChocolate.Execution.Options.RequestExecutorOptions
                 {
                     ExecutionTimeout = TimeSpan.FromSeconds(300)

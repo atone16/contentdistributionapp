@@ -40,7 +40,7 @@ namespace CDA.Mock
                 Email = "jose.banzon@email.com",
                 TenantId = Guid.Parse("ee4a88f9-f2cc-4bf0-9cbf-2e0d2d798db7"),
             };
-            _db.StringSet("User::1658272f-b742-4fcf-91fa-638575ca6503", JsonConvert.SerializeObject(tenant));
+            _db.StringSet("User::1658272f-b742-4fcf-91fa-638575ca6503", JsonConvert.SerializeObject(user));
             _db.SetAdd("ee4a88f9-f2cc-4bf0-9cbf-2e0d2d798db7::User", "1658272f-b742-4fcf-91fa-638575ca6503");
 
             Console.WriteLine("Redis has been seeded.");
