@@ -7,15 +7,15 @@ services:
       context: .
       dockerfile: CDA.API/Dockerfile
     networks:
-      - my-network
+      - my-new-network
 
   my-redis:
     image: redis
     networks:
-      - my-network
+      - my-new-network
     ports:
       - "6379:6379"
 
 networks:
-  my-network:
-    external: true
+  my-new-network:
+    driver: bridge
