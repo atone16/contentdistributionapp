@@ -1,2 +1,0 @@
-# contentdistributionapp
-Content Distribution Application
